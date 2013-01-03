@@ -1,6 +1,8 @@
 (ns terrace.client
   (:use [terrace.dom :only [domready watch data target q]]
-        [webfui.dom :only [defdom]]))
+        [webfui.dom :only [defdom]])
+  (:require [terrace.reader :as reader]
+            [terrace.views.tree :as tree]))
 
 (def my-dom (atom nil))
 (def state (atom []))
@@ -11,9 +13,8 @@
 (defn render-all [old-dom]
   (if-not (empty? @state)
     [:div
-     [:h1
-      "Received edn"]
-     [:pre @state]]
+     [:h1 "Received edn"]
+     (tree/tree @state)]
     [:div
      [:h1 "Awaiting edn"]]))
 
@@ -21,8 +22,9 @@
   (swap! my-dom render-all))
 
 (defn on-new-edn [edn]
-  (let [edn-str (:edn (js->clj edn))]
-    (reset! state (str edn))
+  (let [data (reader/read edn)]
+    (.log js/console (clj->js data))
+    (reset! state (reader/read edn))
     (update-dom)))
 
 ;; (defn on-expand [event]

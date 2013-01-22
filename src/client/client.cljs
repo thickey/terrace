@@ -18,14 +18,24 @@
     [:div
      [:h1 "Awaiting edn"]]))
 
-(defn update-dom []
-  (swap! my-dom render-all))
+(defn render-failure [old-dom]
+  [:div [:h1.error "Error reading edn."]])
+
+(defn update-dom
+  ([dom-fn]
+     (swap! my-dom dom-fn))
+  ([]
+     (update-dom render-all)))
+
 
 (defn on-new-edn [edn]
   (let [data (reader/read edn)]
-    (.log js/console (clj->js data))
-    (reset! state (reader/read edn))
-    (update-dom)))
+    (if (= :success (:read-status data))
+      (do
+        (.log js/console (clj->js data))
+        (reset! state (:data data))
+        (update-dom))
+      (update-dom render-failure))))
 
 ;; (defn on-expand [event]
 ;;   (let [id (data (target event) "id")]

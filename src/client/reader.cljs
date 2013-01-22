@@ -17,7 +17,11 @@
 
 (defn read
   [s]
-  (try (reader/read-string s)
+  (try
+    (let [data (reader/read-string s)]
+      {:read-status :success
+       :data data})
        (catch js/Object e
          (.log js/console e)
-         "Error reading edn.")))
+         {:read-status :failure
+          :message "Error reading edn."})))

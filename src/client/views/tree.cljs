@@ -7,4 +7,5 @@
   [data]
   [:div.tree-view-container
    [:div.tree-items-container
-    (viewable/expanded-tree-view data)]])
+    (viewable/expanded-tree-view data)
+    [:div (str "raw data:" data)]]])

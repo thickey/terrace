@@ -57,16 +57,41 @@
                [:div.tree-view-item (viewable/collapsed-tree-view i)])
              this)]])))
 
+(defn map-collapsed-view
+  [m]
+  [:span (str "{" (apply str (interpose "&hellip;, " (keys m))) " &hellip;}")])
 
-(extend-type PersistentHashMap
-  viewable/ITreeViewable
+(defn map-expanded-view
+  [m]
+  [:div (collection-title m)
+   [:div.expanded-tree-view-items
+    (map (fn [[k v]]
+           [:div.tree-view-map-entry
+            [:span.tree-view-map-entry-key (viewable/collapsed-tree-view k)]
+            [:span.tree-view-map-entry-val (viewable/collapsed-tree-view v)]])
+         m)]])
+
+(extend-protocol viewable/ITreeViewable
+  PersistentHashMap
   (collapsed-tree-view [this]
-    [:span (str "{" (apply str (interpose "&hellip;, " (keys this))) " &hellip;}")])
+    (map-collapsed-view this))
   (expanded-tree-view [this]
-    [:div (collection-title this)
-     [:div.expanded-tree-view-items
-      (map (fn [[k v]]
-             [:div.tree-view-map-entry
-              [:span.tree-view-map-entry-key (viewable/collapsed-tree-view k)]
-              [:span.tree-view-map-entry-val (viewable/collapsed-tree-view v)]])
-            this)]]))
+    (map-expanded-view this))
+  ObjMap
+  (collapsed-tree-view [this]
+    (map-collapsed-view this))
+  (expanded-tree-view [this]
+    (map-expanded-view this)))
+
+;; (extend-type PersistentHashMap
+;;   viewable/ITreeViewable
+;;   (collapsed-tree-view [this]
+;;     [:span (str "{" (apply str (interpose "&hellip;, " (keys this))) " &hellip;}")])
+;;   (expanded-tree-view [this]
+;;     [:div (str (collection-title this) " " this)
+;;      [:div.expanded-tree-view-items
+;;       (map (fn [[k v]]
+;;              [:div.tree-view-map-entry
+;;               [:span.tree-view-map-entry-key (viewable/collapsed-tree-view k)]
+;;               [:span.tree-view-map-entry-val (viewable/collapsed-tree-view v)]])
+;;             this)]]))
